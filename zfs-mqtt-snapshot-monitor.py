@@ -14,6 +14,7 @@ DEFAULT_SANOID_BIN = "/usr/sbin/sanoid"
 DEFAULT_TIMEOUT_SECONDS = 60
 DEFAULT_MQTT_PORT = 1883
 DEFAULT_QOS = 1
+DEFAULT_MQTT_PUBLISH_TIMEOUT = 10
 
 STATUS_MAP = {
     0: "OK",
@@ -76,6 +77,10 @@ def publish_payload(payload):
     topic = get_required_env("ZFS_MQTT_TOPIC")
     port = get_int_env("ZFS_MQTT_PORT", DEFAULT_MQTT_PORT)
     qos = get_int_env("ZFS_MQTT_QOS", DEFAULT_QOS)
+    publish_timeout = get_int_env(
+        "ZFS_MQTT_PUBLISH_TIMEOUT",
+        DEFAULT_MQTT_PUBLISH_TIMEOUT,
+    )
     retain = get_bool_env("ZFS_MQTT_RETAIN", True)
     username = os.getenv("ZFS_MQTT_USERNAME")
     password = os.getenv("ZFS_MQTT_PASSWORD")
@@ -88,10 +93,14 @@ def publish_payload(payload):
     if username:
         client.username_pw_set(username, password)
 
-    client.connect(broker, port, 60)
-    publish_result = client.publish(topic, json.dumps(payload), qos=qos, retain=retain)
-    publish_result.wait_for_publish()
-    client.disconnect()
+    try:
+        client.connect(broker, port, 60)
+        client.loop_start()
+        publish_result = client.publish(topic, json.dumps(payload), qos=qos, retain=retain)
+        publish_result.wait_for_publish(timeout=publish_timeout)
+    finally:
+        client.loop_stop()
+        client.disconnect()
 
 
 def main():
