@@ -34,6 +34,7 @@ The script publishes a retained JSON payload like this:
 - Python 3.8+
 - `sanoid`
 - `paho-mqtt`
+- `python-dotenv`
 
 Install the Python dependency:
 
@@ -43,7 +44,14 @@ python3 -m pip install -r requirements.txt
 
 ## Configuration
 
-Configuration is provided with environment variables.
+Configuration is loaded from a `.env` file in the same directory as the script. Real environment variables can also be used and take precedence over values in `.env`.
+
+Create a local config file from the example:
+
+```sh
+cp .env.example .env
+nano .env
+```
 
 | Variable | Required | Default | Description |
 | --- | --- | --- | --- |
@@ -52,6 +60,7 @@ Configuration is provided with environment variables.
 | `ZFS_MQTT_PORT` | No | `1883` | MQTT broker port. |
 | `ZFS_MQTT_QOS` | No | `1` | MQTT publish QoS. |
 | `ZFS_MQTT_RETAIN` | No | `true` | Whether the MQTT message should be retained. |
+| `ZFS_MQTT_PUBLISH_TIMEOUT` | No | `10` | Timeout in seconds while waiting for the MQTT publish to complete. |
 | `ZFS_MQTT_USERNAME` | No | | MQTT username. |
 | `ZFS_MQTT_PASSWORD` | No | | MQTT password. |
 | `ZFS_MQTT_CLIENT_ID` | No | `zfs-mqtt-snapshot-monitor-<hostname>` | MQTT client ID. |
@@ -61,8 +70,6 @@ Configuration is provided with environment variables.
 ## Usage
 
 ```sh
-export ZFS_MQTT_BROKER="mqtt.example.com"
-export ZFS_MQTT_TOPIC="zfs/snapshots/status"
 python3 zfs-mqtt-snapshot-monitor.py
 ```
 
@@ -73,7 +80,7 @@ The script exits with the same status code as `sanoid --monitor-snapshots` after
 Run every 15 minutes:
 
 ```cron
-*/15 * * * * ZFS_MQTT_BROKER=mqtt.example.com ZFS_MQTT_TOPIC=zfs/snapshots/status /usr/bin/python3 /opt/zfs-mqtt-snapshot-monitor/zfs-mqtt-snapshot-monitor.py
+*/15 * * * * /usr/bin/python3 /opt/zfs-mqtt-snapshot-monitor/zfs-mqtt-snapshot-monitor.py
 ```
 
 ## Systemd Timer
@@ -86,8 +93,6 @@ Description=Publish ZFS snapshot monitor status to MQTT
 
 [Service]
 Type=oneshot
-Environment=ZFS_MQTT_BROKER=mqtt.example.com
-Environment=ZFS_MQTT_TOPIC=zfs/snapshots/status
 ExecStart=/usr/bin/python3 /opt/zfs-mqtt-snapshot-monitor/zfs-mqtt-snapshot-monitor.py
 ```
 

@@ -3,13 +3,16 @@
 
 import json
 import os
+from pathlib import Path
 import socket
 import subprocess
 import sys
 import time
 
+from dotenv import load_dotenv
 import paho.mqtt.client as mqtt
 
+ENV_FILE = Path(__file__).with_name(".env")
 DEFAULT_SANOID_BIN = "/usr/sbin/sanoid"
 DEFAULT_TIMEOUT_SECONDS = 60
 DEFAULT_MQTT_PORT = 1883
@@ -104,6 +107,7 @@ def publish_payload(payload):
 
 
 def main():
+    load_dotenv(ENV_FILE)
     status_code, stdout, stderr = run_sanoid()
 
     payload = {
