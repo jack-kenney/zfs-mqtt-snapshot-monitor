@@ -2,7 +2,7 @@
 
 Publish `sanoid --monitor-snapshots` results to an MQTT topic as JSON.
 
-This is useful when you already use [sanoid](https://github.com/jimsalterjrs/sanoid) to manage ZFS snapshots and want snapshot health exposed to Home Assistant, Node-RED, Telegraf, or another MQTT consumer.
+This is useful when you already use [sanoid](https://github.com/jimsalterjrs/sanoid) to manage ZFS snapshots and want snapshot health exposed to Ignition, Home Assistant, Node-RED, Telegraf, or another MQTT consumer.
 
 ## Payload
 
