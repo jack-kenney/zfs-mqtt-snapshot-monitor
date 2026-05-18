@@ -36,10 +36,14 @@ The script publishes a retained JSON payload like this:
 - `paho-mqtt`
 - `python-dotenv`
 
-Install the Python dependency:
+Install to a virtual environment:
 
 ```sh
-python3 -m pip install -r requirements.txt
+cd /opt/zfs-mqtt-snapshot-monitor
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
 
 ## Configuration
@@ -69,8 +73,18 @@ nano .env
 
 ## Usage
 
+Activate the venv and run:
+
 ```sh
-python3 zfs-mqtt-snapshot-monitor.py
+cd /opt/zfs-mqtt-snapshot-monitor
+source .venv/bin/activate
+python zfs-mqtt-snapshot-monitor.py
+```
+
+Or call the venv Python directly:
+
+```sh
+/opt/zfs-mqtt-snapshot-monitor/.venv/bin/python /opt/zfs-mqtt-snapshot-monitor/zfs-mqtt-snapshot-monitor.py
 ```
 
 The script exits with the same status code as `sanoid --monitor-snapshots` after the MQTT payload is published. If configuration is invalid, it exits with `3`.
@@ -80,7 +94,7 @@ The script exits with the same status code as `sanoid --monitor-snapshots` after
 Run every 15 minutes:
 
 ```cron
-*/15 * * * * /usr/bin/python3 /opt/zfs-mqtt-snapshot-monitor/zfs-mqtt-snapshot-monitor.py
+*/15 * * * * /opt/zfs-mqtt-snapshot-monitor/.venv/bin/python /opt/zfs-mqtt-snapshot-monitor/zfs-mqtt-snapshot-monitor.py
 ```
 
 ## Systemd Timer
@@ -93,7 +107,7 @@ Description=Publish ZFS snapshot monitor status to MQTT
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/python3 /opt/zfs-mqtt-snapshot-monitor/zfs-mqtt-snapshot-monitor.py
+ExecStart=/opt/zfs-mqtt-snapshot-monitor/.venv/bin/python /opt/zfs-mqtt-snapshot-monitor/zfs-mqtt-snapshot-monitor.py
 ```
 
 Example timer:
